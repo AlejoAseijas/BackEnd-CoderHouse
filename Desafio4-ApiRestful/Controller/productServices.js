@@ -1,64 +1,73 @@
 const fs = require("fs");
-
-const getAll = async () => {
-  try {
-    const data = JSON.parse(await fs.promises.readFile("./data.json", "utf-8"));
-    return data;
-  } catch (err) {
-    return err;
+class Controller {
+  constructor() {}
+  async getAll() {
+    try {
+      const data = JSON.parse(
+        await fs.promises.readFile("./data.json", "utf-8")
+      );
+      return data;
+    } catch (err) {
+      return err;
+    }
   }
-};
-
-const getByIdMethod = async (id) => {
-  try {
-    const data = JSON.parse(await fs.promises.readFile("./data.json", "utf-8"));
-    const newData = data.find((dat) => dat.id === parseInt(id));
-    return newData;
-  } catch (err) {
-    return err;
+  async getById(id) {
+    try {
+      const data = JSON.parse(
+        await fs.promises.readFile("./data.json", "utf-8")
+      );
+      const newData =
+        (id > 0) & (id <= data.length)
+          ? data.find((dat) => dat.id === parseInt(id))
+          : { error: "Producto no encontrado" };
+      return newData;
+    } catch (err) {
+      return err;
+    }
   }
-};
-
-const newProduct = async (dataProduct) => {
-  try {
-    const data = JSON.parse(await fs.promises.readFile("./data.json", "utf-8"));
-    dataProduct.id = data.length + 1;
-    data.push(dataProduct);
-    await fs.promises.writeFile("./data.json", JSON.stringify(data));
-    return "dataSave";
-  } catch (err) {
-    return err;
+  async post(dataCard) {
+    try {
+      const data = JSON.parse(
+        await fs.promises.readFile("./data.json", "utf-8")
+      );
+      dataCard.id = data.length + 1;
+      data.push(dataCard);
+      await fs.promises.writeFile("./data.json", JSON.stringify(data));
+      return `Id asignado: ${dataCard.id}`;
+    } catch (err) {
+      return err;
+    }
   }
-};
-
-const editProduct = async (id, newDataProduct) => {
-  try {
+  async put(id, dataCard) {
     const data = JSON.parse(await fs.promises.readFile("./data.json", "utf-8"));
-    data[parseInt(id) - 1].title = newDataProduct.title;
-    data[parseInt(id) - 1].price = newDataProduct.price;
-    data[parseInt(id) - 1].thumbnail = newDataProduct.thumbnail;
-    await fs.promises.writeFile("./data.json", JSON.stringify(data));
-    return "dataEdited";
-  } catch (err) {
-    return err;
+    if ((id > 0) & (id <= data.length)) {
+      try {
+        data[parseInt(id) - 1].title = dataCard.title;
+        data[parseInt(id) - 1].price = dataCard.price;
+        data[parseInt(id) - 1].thumbnail = dataCard.thumbnail;
+        await fs.promises.writeFile("./data.json", JSON.stringify(data));
+        return "data-edited-ok";
+      } catch (err) {
+        return err;
+      }
+    } else {
+      return { error: "Producto no encontrado" };
+    }
   }
-};
-
-const deleteProduct = async (id) => {
-  try {
+  async delete(id) {
     const data = JSON.parse(await fs.promises.readFile("./data.json", "utf-8"));
-    const newData = data.filter((prod) => prod.id != id);
-    await fs.promises.writeFile("./data.json", JSON.stringify(newData));
-    return "dataElimated";
-  } catch (err) {
-    return err;
+    if ((id > 0) & (id <= data.length)) {
+      try {
+        const newData = data.filter((prod) => prod.id != id);
+        await fs.promises.writeFile("./data.json", JSON.stringify(newData));
+        return "data-eliminated";
+      } catch (err) {
+        return err;
+      }
+    } else {
+      return { error: "Producto no encontrado" };
+    }
   }
-};
+}
 
-module.exports.get = getAll;
-module.exports.getById = getByIdMethod;
-module.exports.postData = newProduct;
-module.exports.putData = editProduct;
-module.exports.deleteData = deleteProduct;
-//agregar otra setencia try catch para saber si no existe el id
-//mejorar el metodo edit
+module.exports = Controller;
