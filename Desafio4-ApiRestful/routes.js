@@ -2,7 +2,6 @@ const Controller = require("./Controller/productServices");
 let controller = new Controller();
 const { Router } = require("express");
 const router = Router();
-
 // Router
 router.get("/productos", (req, res) => {
   const getData = async () => {

@@ -8,7 +8,8 @@ const server = app.listen(PORT, () => {
 });
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static("public"));
 app.use("/api", router.routes);
 
 server.on("error", (error) => {
