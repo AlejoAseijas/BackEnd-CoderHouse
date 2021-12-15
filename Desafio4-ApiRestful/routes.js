@@ -1,45 +1,32 @@
-const Controller = require("./Controller/productServices");
-let controller = new Controller();
 const { Router } = require("express");
+const Productos = require("./Controller/productos");
+let productosReq = new Productos();
+
 const router = Router();
+
 // Router
-router.get("/productos", (req, res) => {
-  const getData = async () => {
-    const dat = await controller.getAll();
-    res.send(dat);
-  };
-  getData();
+router.get("/productos", async (req, res) => {
+  const resData = await productosReq.get();
+  res.send(resData);
 });
 
-router.get("/productos/:id", (req, res) => {
-  const getData = async () => {
-    const dat = await controller.getById(req.params.id);
-    res.send(dat);
-  };
-  getData();
+router.get("/productos/:id", async (req, res) => {
+  const resData = await productosReq.getById(req.params.id);
+  res.send(resData);
 });
 
-router.post("/productos", (req, res) => {
-  const setData = async () => {
-    const dat = await controller.post(req.body);
-    res.send(dat);
-  };
-  setData();
+router.post("/productos", async (req, res) => {
+  const resData = await productosReq.post(req.body);
+  res.send(resData);
 });
-router.put("/productos/:id", (req, res) => {
-  const edit = async () => {
-    const dat = await controller.put(req.params.id, req.body);
-    res.send(dat);
-  };
-  edit();
+router.put("/productos/:id", async (req, res) => {
+  const resData = await productosReq.put(req.params.id, req.body);
+  res.send(resData);
 });
 
-router.delete("/productos/:id", (req, res) => {
-  const deleteDat = async () => {
-    const dat = await controller.delete(req.params.id);
-    res.send(dat);
-  };
-  deleteDat();
+router.delete("/productos/:id", async (req, res) => {
+  const resData = await productosReq.delete(req.params.id);
+  res.send(resData);
 });
 
 // Fin router
