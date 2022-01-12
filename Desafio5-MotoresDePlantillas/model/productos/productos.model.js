@@ -1,53 +1,54 @@
-const { json } = require("express");
+const fs = require("fs");
 
-let productos = [
-  {
-    title: "Vans Rv7",
-    price: 20000,
-    thumbnail:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Vans.rv-7.g-kels.arp.jpg/320px-Vans.rv-7.g-kels.arp.jpg",
-    id: 1,
-  },
-  {
-    title: "Rans S10",
-    price: 20000,
-    thumbnail:
-      "https://lh3.googleusercontent.com/proxy/aPPH4leRw9SCota7bfnIUDetZ2_U0KN-4FTzrtuAg0KWZySbCZ0orLhrKCpGV0OtQL1_ISHZK5L6ITQXep50ewkLVFkTA3rsvg",
-    id: 2,
-  },
-  {
-    title: "Test",
-    price: "200",
-    thumbnail:
-      "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAoHCBYWFRgWFhYZGRgZHBoYGhoaGh0cHBgZGhkcGRgcGRocIS4lHB4rHxoaJjgmKy8xNTU1GiQ7QDszPy40NTEBDAwMEA8QHhISHzQrJCs0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NP/AABEIALwBDAMBIgACEQEDEQH/xAAbAAABBQEBAAAAAAAAAAAAAAACAAEDBAUGB//EAEQQAAEDAgMDCgMEBwgCAwAAAAEAAhEDIQQSMUFRYQUGEyJxgZGhsfAywdFCUnLhFGKCkrLS8QczQ1NjosLiFSMWk8P/xAAYAQEBAQEBAAAAAAAAAAAAAAAAAQIDBP/EACURAAICAQQCAgIDAAAAAAAAAAABAhEhEhMxUQNBBGEUsSIycf/aAAwDAQACEQMRAD8A7tpRQo2hHBC9ZxsJjJKvwAqlI7VI4lYZuInIWOiQme9DRElKDZYa5Rvemc2EIRINi6Ra1JggRpCx2NkwVq0yRZSQiyxlTwga9FmXM0IhIMTgpwUMiARAJgU4KhoWVNCKUJcEBBUqbrKJ7yRdFVaDcKJwK0kACyxMqBj4IUrgYhQOF10RGWKlSUAO5HRo5tqM4U71MIpC18IHEEq1+iDaSnOFbuTUgVHEFRuJ2BaTMO0JVGgBNRKMVznKJzHnYtEO1CjL10TMOPbM92HdqVE9q0XydiEYeVpS7MOPRmOTXWr+ihH+jjcFrWhoZDTeFJmlR5ISBXI1ZaY0Qk8wq3SkJnVSVKZrUqE8oqYMgoQJUkLRgne6Qos0Ji5O4SokVuxpV7DVZF1UymEdBjpUllFRohwT5ghA4p4XI0PnCQqjeqT6qi6RaURZpl6WZVGPkKXOpRUTGok0ybqMFC6pClCi65ohQPAAUHS8VHVxEoostkj5BmFWeVcDhlE6gKtUYDotxZGTYYWVqVXoiApmPlYkW",
-    id: 3,
-  },
-];
+class Persist {
+  constructor() {}
+
+  async open() {
+    let data = JSON.parse(await fs.promises.readFile("./data.json", "utf-8"));
+    return data;
+  }
+
+  async getLastId() {
+    let lastId = await this.open();
+    return lastId.length + 1;
+  }
+
+  async save(data) {
+    data.id = await this.getLastId();
+    let dataExist = await this.open();
+    dataExist.push(data);
+    await fs.promises.writeFile("./data.json", JSON.stringify(dataExist));
+    return data.id;
+  }
+
+  async modify(id, data) {}
+
+  async delete(id) {}
+}
+
+const persists = new Persist();
 
 class Productos {
   constructor() {}
-  get() {
-    return productos;
+  async get() {
+    let data = await persists.open();
+    return data;
   }
-  getById(id) {
+  async getById(id) {
+    let productos = await this.get();
     try {
       let productSelect = productos.find((item) => {
         return item.id === parseInt(id);
       });
-      productSelect === undefined
-        ? (productSelect = "id invalido")
-        : productSelect;
       return productSelect;
     } catch (err) {
       return err;
     }
   }
-  post(bodyData) {
+  async post(bodyData) {
     try {
-      let lastId = productos.length + 1;
-      bodyData.id = lastId;
-      productos.push(bodyData);
-      return bodyData;
+      let newProductId = await persists.save(bodyData);
+      return `Producto agregado con id ${newProductId}`;
     } catch (err) {
       return err;
     }
