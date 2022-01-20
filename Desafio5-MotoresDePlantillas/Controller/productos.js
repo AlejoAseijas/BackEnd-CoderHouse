@@ -1,54 +1,46 @@
-const fs = require("fs");
+const { json } = require("express");
 
-class Persist {
-  constructor() {}
-
-  async open() {
-    let data = JSON.parse(await fs.promises.readFile("./data.json", "utf-8"));
-    return data;
-  }
-
-  async getLastId() {
-    let lastId = await this.open();
-    return lastId.length + 1;
-  }
-
-  async save(data) {
-    data.id = await this.getLastId();
-    let dataExist = await this.open();
-    dataExist.push(data);
-    await fs.promises.writeFile("./data.json", JSON.stringify(dataExist));
-    return data.id;
-  }
-
-  async modify(id, data) {}
-
-  async delete(id) {}
-}
-
-const persists = new Persist();
+let productos = [
+  {
+    title: "Vans Rv7",
+    price: 20000,
+    thumbnail:
+      "https://upload.wikimedia.org/wikipedia/commons/7/7e/Vans.rv-7.g-kels.arp.jpg",
+    id: 1,
+  },
+  {
+    title: "Rans S10",
+    price: 20000,
+    thumbnail:
+      "https://i.pinimg.com/736x/47/b1/5c/47b15ccf808744087c10b94ed605a4cf--pictures-photos.jpg",
+    id: 2,
+  },
+];
 
 class Productos {
   constructor() {}
-  async get() {
-    let data = await persists.open();
-    return data;
+  get() {
+    return productos;
   }
-  async getById(id) {
-    let productos = await this.get();
+  getById(id) {
     try {
       let productSelect = productos.find((item) => {
         return item.id === parseInt(id);
       });
+      productSelect === undefined
+        ? (productSelect = "id invalido")
+        : productSelect;
       return productSelect;
     } catch (err) {
       return err;
     }
   }
-  async post(bodyData) {
+  post(bodyData) {
     try {
-      let newProductId = await persists.save(bodyData);
-      return `Producto agregado con id ${newProductId}`;
+      let lastId = productos.length + 1;
+      bodyData.id = lastId;
+      productos.push(bodyData);
+      return bodyData;
     } catch (err) {
       return err;
     }
